@@ -23,6 +23,7 @@ use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 class TelegramDriver extends HttpDriver
 {
     const DRIVER_NAME = 'Telegram';
+    const DEFAULT_BASE_URL = 'https://api.telegram.org';
 
     protected $endpoint = 'sendMessage';
 
@@ -36,6 +37,9 @@ class TelegramDriver extends HttpDriver
         $this->payload = new ParameterBag((array) json_decode($request->getContent(), true));
         $this->event = Collection::make($this->payload->get('message'));
         $this->config = Collection::make($this->config->get('telegram'));
+        if (false === $this->config->has('base_url')) {
+            $this->config->offsetSet('base_url', self::DEFAULT_BASE_URL);
+        }
     }
 
     /**
@@ -50,7 +54,7 @@ class TelegramDriver extends HttpDriver
             'user_id' => $matchingMessage->getSender(),
         ];
 
-        $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/getChatMember',
+        $response = $this->http->post($this->config->get('base_url').'/bot'.$this->config->get('token').'/getChatMember',
             [], $parameters);
 
         $responseData = json_decode($response->getContent(), true);
@@ -197,7 +201,7 @@ class TelegramDriver extends HttpDriver
             'action' => 'typing',
         ];
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
+        return $this->http->post($this->config->get('base_url').'/bot'.$this->config->get('token').'/sendChatAction', [],
             $parameters);
     }
 
@@ -237,7 +241,7 @@ class TelegramDriver extends HttpDriver
             'inline_keyboard' => [],
         ];
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/editMessageReplyMarkup',
+        return $this->http->post($this->config->get('base_url').'/bot'.$this->config->get('token').'/editMessageReplyMarkup',
             [], $parameters);
     }
 
@@ -308,7 +312,7 @@ class TelegramDriver extends HttpDriver
      */
     public function sendPayload($payload)
     {
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$this->endpoint,
+        return $this->http->post($this->config->get('base_url').'/bot'.$this->config->get('token').'/'.$this->endpoint,
             [], $payload);
     }
 
@@ -334,7 +338,7 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
         ], $parameters);
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$endpoint, [],
+        return $this->http->post($this->config->get('base_url').'/bot'.$this->config->get('token').'/'.$endpoint, [],
             $parameters);
     }
 }

@@ -27,7 +27,7 @@ class TelegramRegisterCommand extends Command
      */
     public function handle()
     {
-        $url = 'https://api.telegram.org/bot'
+        $url = config('botman.telegram.base_url').'/bot'
                 .config('botman.telegram.token')
                 .'/setWebhook?url='
                 .$this->ask('What is the target url for the telegram bot?');
